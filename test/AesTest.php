@@ -43,6 +43,10 @@ final class AesTest extends TestCase
 {
     const DEBUG = false;
 
+    /*
+     * NOTE - These are the NIST AES test vectors.
+     */
+
     const PLAIN_HEX_1 = "6bc1bee22e409f96e93d7e117393172a";
     const PLAIN_HEX_2 = "ae2d8a571e03ac9c9eb76fac45af8e51";
     const PLAIN_HEX_3 = "30c81c46a35ce411e5fbc1191a0a52ef";
