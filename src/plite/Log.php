@@ -130,7 +130,7 @@ class Log
 
     public static function log ()
     {
-        $prefix = (self::DEBUG_TIMING || self::DEBUG_REMOTE) ? self::makePrefix() : "";
+        $prefix = (!self::DEBUG_TIMING && !self::DEBUG_REMOTE) ? "" : self::makeDebugPrefix();
         $argc   = func_num_args();
 
         if ( 2 == $argc )
@@ -151,34 +151,6 @@ class Log
             self::logScalar($longPrefix, $val);
         else
             self::logObject($prefix, $key, $val);
-    }
-
-
-
-    private static function makePrefix ()
-    {
-        $time = $remote = "";
-
-        if ( self::DEBUG_TIMING )
-        {
-            $time = microtime(true);
-            $time = $time - floor($time);
-            $time = sprintf("%0.3f", $time);
-            $time .= ' ';
-            $time = self::red($time);
-        }
-
-        if ( self::DEBUG_REMOTE && isWeb() )
-        {
-            //$remote = $_SERVER['REMOTE_ADDR'] . ":" . $_SERVER['REMOTE_PORT'] . " ";
-            //$remote = $_SERVER['REMOTE_ADDR'] . ":" . $_SERVER['REMOTE_PORT'] . "/" . $_SERVER['REQUEST_METHOD'] . " ";
-            $remote = $_SERVER['REMOTE_ADDR'] . "/" . $_SERVER['REQUEST_METHOD'] . " ";
-            //$remote = self::yellow($remote);
-        }
-
-        $prefix = $time . $remote;
-
-        return $prefix;
     }
 
 
@@ -675,5 +647,33 @@ class Log
         {
             error_log($mesg);
         }
+    }
+
+
+
+    private static function makeDebugPrefix ()
+    {
+        $time = $remote = "";
+
+        if ( self::DEBUG_TIMING )
+        {
+            $time = microtime(true);
+            $time = $time - floor($time);
+            $time = sprintf("%0.3f", $time);
+            $time .= ' ';
+            $time = self::red($time);
+        }
+
+        if ( self::DEBUG_REMOTE && isWeb() )
+        {
+            //$remote = $_SERVER['REMOTE_ADDR'] . ":" . $_SERVER['REMOTE_PORT'] . " ";
+            //$remote = $_SERVER['REMOTE_ADDR'] . ":" . $_SERVER['REMOTE_PORT'] . "/" . $_SERVER['REQUEST_METHOD'] . " ";
+            $remote = $_SERVER['REMOTE_ADDR'] . "/" . $_SERVER['REQUEST_METHOD'] . " ";
+            //$remote = self::yellow($remote);
+        }
+
+        $prefix = $time . $remote;
+
+        return $prefix;
     }
 }
