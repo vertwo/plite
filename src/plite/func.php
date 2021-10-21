@@ -42,24 +42,15 @@ function cclog ( $color, $mesg ) { clog(Log::color($color, $mesg)); }
 
 
 function redlog ( $mesg ) { cclog(Log::TEXT_COLOR_RED, $mesg); }
-
-
 function yellog ( $mesg ) { cclog(Log::TEXT_COLOR_YELLOW, $mesg); }
-
-
 function grnlog ( $mesg ) { cclog(Log::TEXT_COLOR_GREEN, $mesg); }
-
-
 function cynlog ( $mesg ) { cclog(Log::TEXT_COLOR_CYAN, $mesg); }
-
-
 function redulog ( $mesg ) { cclog(Log::TEXT_COLOR_UL_RED, $mesg); }
-
-
 function yelulog ( $mesg ) { cclog(Log::TEXT_COLOR_UL_YELLOW, $mesg); }
-
-
 function grnulog ( $mesg ) { cclog(Log::TEXT_COLOR_UL_GREEN, $mesg); }
-
-
 function cynulog ( $mesg ) { cclog(Log::TEXT_COLOR_UL_CYAN, $mesg); }
+
+
+
+function isCLI () { return !isset($_SERVER["SERVER_PORT"]) && (php_sapi_name() === 'cli'); }
+function isWeb () { return !isCLI(); }

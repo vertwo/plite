@@ -35,9 +35,8 @@ abstract class CLI
 
 
 
-    static function looksLikeCLI () { return false == isset($_SERVER["SERVER_PORT"]); }
-    static function isCLI () { return self::looksLikeCLI() && (php_sapi_name() === 'cli'); }
-    static function isWeb () { return !self::isCLI(); }
+//    static function isCLI () { return isCLI(); }
+//    static function isWeb () { return isWeb(); }
 
     static function req ( $string ) { return $string . ":"; }
     static function opt ( $string ) { return $string . "::"; }

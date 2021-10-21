@@ -23,6 +23,7 @@ namespace vertwo\plite;
 
 
 
+use Exception;
 use vertwo\plite\Util\PrecTime;
 use vertwo\plite\Util\Wired;
 
@@ -106,6 +107,26 @@ class Log
     }
 
 
+
+    public static function red ( $str ) { return self::color(self::TEXT_COLOR_RED, $str); }
+    public static function cyan ( $str ) { return self::color(self::TEXT_COLOR_CYAN, $str); }
+    public static function yellow ( $str ) { return self::color(self::TEXT_COLOR_YELLOW, $str); }
+    public static function white ( $str ) { return self::color(self::TEXT_COLOR_WHITE, $str); }
+    public static function green ( $str ) { return self::color(self::TEXT_COLOR_GREEN, $str); }
+    public static function blue ( $str ) { return self::color(self::TEXT_COLOR_BLUE, $str); }
+    public static function orange ( $str ) { return self::color(self::TEXT_COLOR_ORANGE, $str); }
+
+    public static function ulred ( $str ) { return self::color(self::TEXT_COLOR_UL_RED, $str); }
+    public static function ulcyan ( $str ) { return self::color(self::TEXT_COLOR_UL_CYAN, $str); }
+    public static function ulyellow ( $str ) { return self::color(self::TEXT_COLOR_UL_YELLOW, $str); }
+    public static function ulwhite ( $str ) { return self::color(self::TEXT_COLOR_UL_WHITE, $str); }
+    public static function ulgreen ( $str ) { return self::color(self::TEXT_COLOR_UL_GREEN, $str); }
+
+    public static function bgred ( $str ) { return self::color(self::TEXT_COLOR_BG_RED, $str); }
+    public static function bgyellow ( $str ) { return self::color(self::TEXT_COLOR_BG_YELLOW, $str); }
+
+
+
     public static function log ()
     {
         $prefix = self::makePrefix();
@@ -113,22 +134,22 @@ class Log
 
         if ( 2 == $argc )
         {
-            $desc       = func_get_arg(0);
-            $item       = func_get_arg(1);
-            $descString = self::color(self::TEXT_COLOR_CYAN, $desc . ": ");
-            $longPrefix = $prefix . $descString;
+            $key        = func_get_arg(0);
+            $val        = func_get_arg(1);
+            $prompt     = self::cyan($key . ": ");
+            $longPrefix = $prefix . $prompt;
         }
         else
         {
-            $item       = func_get_arg(0);
-            $desc       = "";
+            $val        = func_get_arg(0);
+            $key        = "";
             $longPrefix = $prefix;
         }
 
-        if ( is_scalar($item) )
-            self::logScalar($longPrefix, $item);
+        if ( is_scalar($val) )
+            self::logScalar($longPrefix, $val);
         else
-            self::logObject($prefix, $desc, $item);
+            self::logObject($prefix, $key, $val);
     }
 
 
@@ -141,9 +162,9 @@ class Log
     {
         try
         {
-            throw new \Exception();
+            throw new Exception();
         }
-        catch ( \Exception $e )
+        catch ( Exception $e )
         {
             self::logException($e);
         }
@@ -158,25 +179,25 @@ class Log
         {
             $desc = func_get_arg(0);
             $item = func_get_arg(1);
-            clog($desc, self::color(self::TEXT_COLOR_UL_YELLOW, "WARNING - $item"));
+            clog($desc, self::ulyellow("WARNING - $item"));
         }
         else
         {
             $item = func_get_arg(0);
-            clog(self::color(self::TEXT_COLOR_UL_YELLOW, "WARNING - $item"));
+            clog(self::ulyellow("WARNING - $item"));
         }
     }
 
 
     public static function error ( $mesg, $shouldAbort = false, $errorCode = 1 )
     {
-        clog(self::color(self::TEXT_COLOR_UL_RED, "ERROR - $mesg"));
+        clog(self::ulred("ERROR - $mesg"));
 
         try
         {
-            throw new \Exception($mesg);
+            throw new Exception($mesg);
         }
-        catch ( \Exception $e )
+        catch ( Exception $e )
         {
             clog($e);
         }
@@ -187,25 +208,14 @@ class Log
     }
 
 
-    public static function abort ( $mesg, $errorCode = 1 ) { error($mesg, true, $errorCode); }
+    public static function abort ( $mesg, $errorCode = 1 ) { self::error($mesg, true, $errorCode); }
 
 
     private static function logScalar ( $prefix, $scalar )
     {
-        if ( is_bool($scalar) )
-            $mesg = self::b2s($scalar);
-        else
-            $mesg = self::color(self::TEXT_COLOR_YELLOW, strval($scalar));
-
+        //$mesg = is_bool($scalar) ? ($scalar ? self::ulgreen("true") : self::ulred("FALSE")) : self::yellow(strval($scalar));
+        $mesg = is_bool($scalar) ? ($scalar ? self::ulgreen("true") : self::ulred("FALSE")) : strval($scalar);
         self::_log($prefix . $mesg);
-    }
-
-
-    private static function b2s ( $boolVal )
-    {
-        return $boolVal
-            ? self::color(self::TEXT_COLOR_UL_GREEN, "true")
-            : self::color(self::TEXT_COLOR_UL_RED, "FALSE");
     }
 
 
@@ -213,8 +223,8 @@ class Log
     {
         if ( null === $item )
         {
-            $str = self::color(self::TEXT_COLOR_BG_RED, "[NULL object]");
-            $str = "== " . self::color(self::TEXT_COLOR_YELLOW, $desc) . " " . $str . " ==";
+            $str = self::bgred("[NULL object]");
+            $str = "== " . self::yellow($desc) . " " . $str . " ==";
             self::log($prefix . $str);
             return;
         }
@@ -224,7 +234,7 @@ class Log
 
             self::logArray($prefix, $descString, $item);
         }
-        else if ( $item instanceof \Exception )
+        else if ( $item instanceof Exception )
         {
             self::logException($item);
         }
@@ -258,7 +268,7 @@ class Log
 
                     $str = FJ::jsEncode($data);
 
-                    $type = self::color(self::TEXT_COLOR_YELLOW, "<$type>");
+                    $type = self::yellow("<$type>");
                     $str  = self::color($color, $str);
 
                     self::log($prefix . "$type: $str");
@@ -300,8 +310,8 @@ class Log
 
         if ( 0 == $count )
         {
-            $str = self::color(self::TEXT_COLOR_BG_RED, "[EMPTY array]");
-            $str = "== " . self::color(self::TEXT_COLOR_YELLOW, $desc) . " " . $str . " ==";
+            $str = self::bgred("[EMPTY array]");
+            $str = "== " . self::yellow($desc) . " " . $str . " ==";
             self::log($prefix . $str);
             return;
         }
@@ -337,7 +347,7 @@ class Log
         }
 
         $pre = sprintf($blank, $desc);
-        $pre = self::color(self::TEXT_COLOR_UL_YELLOW, $pre);
+        $pre = self::ulyellow($pre);
 
         //self::log("clogHandleArray/pre: $pre");
 
@@ -360,7 +370,7 @@ class Log
 
             if ( is_array($val) )
             {
-                $post = self::color(self::TEXT_COLOR_UL_CYAN, "Array");
+                $post = self::ulcyan("Array");
                 $str  = $pre . $post;
                 self::log($prefix . $indent . $str);
 
@@ -379,7 +389,7 @@ class Log
                 else
                 {
                     $val  = self::obfuscatePasswords($key, $val);
-                    $post = self::color(self::TEXT_COLOR_GREEN, $val);
+                    $post = self::green($val);
                     $str  = $pre . $post;
                 }
 
@@ -393,7 +403,7 @@ class Log
      * ****************************************************************
      * Pretty-prints and Exception object.
      *
-     * @param \Exception $ex
+     * @param Exception $ex
      * ****************************************************************
      */
     private static function logException ( $ex )
@@ -402,7 +412,7 @@ class Log
         if ( $ex instanceof FJEX && $ex->getCode() < 0 )
         {
             $str = sprintf("========######## [ %s ] ########========", $ex->getMessage());
-            $str = self::color(self::TEXT_COLOR_UL_YELLOW, $str);
+            $str = self::ulyellow($str);
             self::log($str);
             return;
         }
@@ -416,7 +426,7 @@ class Log
         $mesg      = $ex->getMessage();
 
         $str = sprintf("%3d) %s - (%s:%d)", $depth, $mesg, $file, $ex->getLine());
-        $str = self::color(self::TEXT_COLOR_BG_RED, $str);
+        $str = self::bgred($str);
         self::log($str);
 
         $trace      = $ex->getTrace();
@@ -441,7 +451,7 @@ class Log
             $mesg = "$file:$line";
 
             $str = sprintf("%3d) %s%-{$exceptionLineGap}s - (%s)", $depth, "", $caller, $mesg);
-            $str = self::color(self::TEXT_COLOR_BG_RED, $str);
+            $str = self::bgred($str);
             self::log($str);
         }
     }
@@ -486,7 +496,7 @@ class Log
             $time = $time - floor($time);
             $time = sprintf("%0.3f", $time);
             $time .= ' ';
-            $time = self::color(self::TEXT_COLOR_RED, $time);
+            $time = self::red($time);
         }
 
         if ( self::CLOG_REMOTE && isWeb() )
@@ -494,7 +504,7 @@ class Log
             //$remote = $_SERVER['REMOTE_ADDR'] . ":" . $_SERVER['REMOTE_PORT'] . " ";
             //$remote = $_SERVER['REMOTE_ADDR'] . ":" . $_SERVER['REMOTE_PORT'] . "/" . $_SERVER['REQUEST_METHOD'] . " ";
             $remote = $_SERVER['REMOTE_ADDR'] . "/" . $_SERVER['REQUEST_METHOD'] . " ";
-            //$remote = self::color(self::TEXT_COLOR_YELLOW, $remote);
+            //$remote = self::yellow($remote);
         }
 
         $prefix = $time . $remote;
@@ -510,7 +520,7 @@ class Log
      */
     private static function initFileHandle ()
     {
-        if ( CLI::isCLI() )
+        if ( isCLI() )
         {
             if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("IS-CLI; aborting!");
 
@@ -578,7 +588,7 @@ class Log
     private static function isFileOpen () { return false !== self::$logfp; }
 
 
-    private static function shouldColor () { return CLI::isCLI() || self::isFileOpen(); }
+    private static function shouldColor () { return isCLI() || self::isFileOpen(); }
 
 
     private static function _log ( $mesg )
@@ -586,7 +596,7 @@ class Log
         //error_log("FJ::log()");
         self::initFileHandle();
 
-        if ( CLI::isWeb() && array_key_exists('REQUEST_TIME_FLOAT', $_SERVER) )
+        if ( isWeb() && array_key_exists('REQUEST_TIME_FLOAT', $_SERVER) )
         {
             //error_log("Why doesn't this appear??");
 
@@ -628,7 +638,7 @@ class Log
                 ? self::$customPrefix
                 : $_SERVER['PHP_SELF'];
 
-            $self = self::color(self::TEXT_COLOR_GREEN, $self);
+            $self = self::green($self);
 
             $mesgCustom .= " $self $mesg";
 
