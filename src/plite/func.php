@@ -23,7 +23,7 @@ namespace vertwo\plite;
 
 
 
-function clog ( $s1 )
+function clog ()
 {
     switch ( func_num_args() )
     {
