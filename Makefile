@@ -1,3 +1,7 @@
+PU			:=	vendor/phpunit/phpunit/phpunit
+
+
+
 .PHONY			:	composer-install
 composer-install	:
 	rm -rf vendor
@@ -13,4 +17,4 @@ composer-install	:
 
 .PHONY			: test
 test			:
-	./phpunit --bootstrap vendor/autoload.php test
+	$(PU) --bootstrap vendor/autoload.php test
