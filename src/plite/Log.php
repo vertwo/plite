@@ -31,6 +31,9 @@ use vertwo\plite\Util\Wired;
 
 class Log
 {
+    const DEBUG_TIMING = false;
+    const DEBUG_REMOTE = false;
+
     const CLOG_ERROR_LOG_CONSTANT      = 'error_log';
     const CLOG_FILENAME                = "php.clog";
     const CLOG_TIMING_THRESHOLD        = 50; // millis before we mark it red.
@@ -48,8 +51,6 @@ class Log
     const CLOG_TAB_WIDTH            = 1; // Expressed as a power of two.
     const CLOG_IGNORE_DEPTH         = 0;
     const CLOG_OBEY_DEPTH           = 1;
-    const CLOG_TIMING               = false;
-    const CLOG_REMOTE               = false;
     const CLOG_SESSION              = true;
     const CLOG_ARRAY_KEY_FANCY      = true;
     const CLOG_DEPTH_INDENT         = 4;
@@ -129,7 +130,7 @@ class Log
 
     public static function log ()
     {
-        $prefix = self::makePrefix();
+        $prefix = (self::DEBUG_TIMING || self::DEBUG_REMOTE) ? self::makePrefix() : "";
         $argc   = func_num_args();
 
         if ( 2 == $argc )
@@ -151,6 +152,43 @@ class Log
         else
             self::logObject($prefix, $key, $val);
     }
+
+
+
+    private static function makePrefix ()
+    {
+        $time = $remote = "";
+
+        if ( self::DEBUG_TIMING )
+        {
+            $time = microtime(true);
+            $time = $time - floor($time);
+            $time = sprintf("%0.3f", $time);
+            $time .= ' ';
+            $time = self::red($time);
+        }
+
+        if ( self::DEBUG_REMOTE && isWeb() )
+        {
+            //$remote = $_SERVER['REMOTE_ADDR'] . ":" . $_SERVER['REMOTE_PORT'] . " ";
+            //$remote = $_SERVER['REMOTE_ADDR'] . ":" . $_SERVER['REMOTE_PORT'] . "/" . $_SERVER['REQUEST_METHOD'] . " ";
+            $remote = $_SERVER['REMOTE_ADDR'] . "/" . $_SERVER['REQUEST_METHOD'] . " ";
+            //$remote = self::yellow($remote);
+        }
+
+        $prefix = $time . $remote;
+
+        return $prefix;
+    }
+
+
+    private static function logScalar ( $prefix, $scalar )
+    {
+        //$mesg = is_bool($scalar) ? ($scalar ? self::ulgreen("true") : self::ulred("FALSE")) : self::yellow(strval($scalar));
+        $mesg = is_bool($scalar) ? ($scalar ? self::ulgreen("true") : self::ulred("FALSE")) : strval($scalar);
+        self::_log($prefix . $mesg);
+    }
+
 
 
     /**
@@ -209,14 +247,6 @@ class Log
 
 
     public static function abort ( $mesg, $errorCode = 1 ) { self::error($mesg, true, $errorCode); }
-
-
-    private static function logScalar ( $prefix, $scalar )
-    {
-        //$mesg = is_bool($scalar) ? ($scalar ? self::ulgreen("true") : self::ulred("FALSE")) : self::yellow(strval($scalar));
-        $mesg = is_bool($scalar) ? ($scalar ? self::ulgreen("true") : self::ulred("FALSE")) : strval($scalar);
-        self::_log($prefix . $mesg);
-    }
 
 
     private static function logObject ( $prefix, $desc, $item )
@@ -482,34 +512,6 @@ class Log
         return !preg_match(self::CLOG_PASSWORD_PATTERN, $key)
             ? $val
             : self::createPlaceholder(strlen($val), "*");
-    }
-
-
-
-    private static function makePrefix ()
-    {
-        $time = $remote = "";
-
-        if ( self::CLOG_TIMING )
-        {
-            $time = microtime(true);
-            $time = $time - floor($time);
-            $time = sprintf("%0.3f", $time);
-            $time .= ' ';
-            $time = self::red($time);
-        }
-
-        if ( self::CLOG_REMOTE && isWeb() )
-        {
-            //$remote = $_SERVER['REMOTE_ADDR'] . ":" . $_SERVER['REMOTE_PORT'] . " ";
-            //$remote = $_SERVER['REMOTE_ADDR'] . ":" . $_SERVER['REMOTE_PORT'] . "/" . $_SERVER['REQUEST_METHOD'] . " ";
-            $remote = $_SERVER['REMOTE_ADDR'] . "/" . $_SERVER['REQUEST_METHOD'] . " ";
-            //$remote = self::yellow($remote);
-        }
-
-        $prefix = $time . $remote;
-
-        return $prefix;
     }
 
 
