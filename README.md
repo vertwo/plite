@@ -7,7 +7,7 @@ The AWS abstraction classes also allow you to use a local, offline version for t
 
 There are several entry points for using this library, depending on the intended usage.
 
-## Entry Point: CLI
+## Use Case: CLI
 
 If you are using this to create a command-line script (e.g., executable with a shebang), then your starting point is the class `vertwo\plite\CLI`.
 
@@ -115,7 +115,7 @@ and use it like this:
     }
 ```
 
-It's beautiful.
+Beautiful.
 
 Here's the final, (potentially) executable script:
 
@@ -170,3 +170,46 @@ class HelloWorld extends CLI
 
 HelloWorld::run();
 ```
+
+
+## Use Case: Logging
+
+If you're just using this library for the logger, you just need to import one function: `vertwo\plite\clog`.
+
+It uses the `vertwo\plite\Log` class, and the functions are loaded as a separate function into the top-level `vertwo\plite` namespace.
+
+If you're wondering why it's called `clog`, it's shorthand for the javascript logger: `console.log`.
+
+It's simple to use:
+
+```
+            clog("Hello, world!");
+```
+
+In CLI mode, `clog()` outputs to `stderr`, and uses ANSI escape sequences to colorize the output.  It can either be used in 1-argument mode (printing a simple string), or, more usefully, in 2-argument mode--which prints arg 1 (the "prompt"), followed by a `: `, followed by arg 2 (the "value").
+
+So, imagine our `main()` function looked like this:
+
+```
+    public function main ()
+    {
+        if ( $this->hasopt("v") ) echo "About to print string!\n";
+
+        if ( $this->hasopt("name") )
+        {
+            echo "Hello, world, " . $this->getopt("name") . "!\n";
+        }
+        else
+        {
+            clog("Hello, world!");
+            clog("Hello", "world");
+        }
+        return 0;
+    }
+```
+
+Then, if no prompt is given, the output will look like this:
+
+![plite-clog-example](https://user-images.githubusercontent.com/1719707/138364833-ed8eb36b-7b99-435c-b738-2cfc24d3eca0.png)
+
+Beautiful.
