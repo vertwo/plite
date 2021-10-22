@@ -165,65 +165,6 @@ class Log
         $mesg = is_bool($scalar) ? ($scalar ? self::ulgreen("true") : self::ulred("FALSE")) : strval($scalar);
         self::_log($prefix . $mesg);
     }
-
-
-
-    /**
-     * Pretty-prints a dump of the current call-stack.
-     */
-    public static function dump ()
-    {
-        try
-        {
-            throw new Exception();
-        }
-        catch ( Exception $e )
-        {
-            self::logException($e);
-        }
-    }
-
-
-    public static function warn ()
-    {
-        $argc = func_num_args();
-
-        if ( 2 == $argc )
-        {
-            $desc = func_get_arg(0);
-            $item = func_get_arg(1);
-            clog($desc, self::ulyellow("WARNING - $item"));
-        }
-        else
-        {
-            $item = func_get_arg(0);
-            clog(self::ulyellow("WARNING - $item"));
-        }
-    }
-
-
-    public static function error ( $mesg, $shouldAbort = false, $errorCode = 1 )
-    {
-        clog(self::ulred("ERROR - $mesg"));
-
-        try
-        {
-            throw new Exception($mesg);
-        }
-        catch ( Exception $e )
-        {
-            clog($e);
-        }
-
-        if ( false !== $shouldAbort ) exit($errorCode);
-
-        return false;
-    }
-
-
-    public static function abort ( $mesg, $errorCode = 1 ) { self::error($mesg, true, $errorCode); }
-
-
     private static function logObject ( $prefix, $desc, $item )
     {
         if ( null === $item )
@@ -685,4 +626,64 @@ class Log
 
         return $prefix;
     }
+
+
+
+    /**
+     * Pretty-prints a dump of the current call-stack.
+     */
+    public static function dump ()
+    {
+        try
+        {
+            throw new Exception();
+        }
+        catch ( Exception $e )
+        {
+            self::logException($e);
+        }
+    }
+
+
+
+    public static function warn ()
+    {
+        $argc = func_num_args();
+
+        if ( 2 == $argc )
+        {
+            $desc = func_get_arg(0);
+            $item = func_get_arg(1);
+            clog($desc, self::ulyellow("WARNING - $item"));
+        }
+        else
+        {
+            $item = func_get_arg(0);
+            clog(self::ulyellow("WARNING - $item"));
+        }
+    }
+
+
+
+    public static function error ( $mesg, $shouldAbort = false, $errorCode = 1 )
+    {
+        clog(self::ulred("ERROR - $mesg"));
+
+        try
+        {
+            throw new Exception($mesg);
+        }
+        catch ( Exception $e )
+        {
+            clog($e);
+        }
+
+        if ( false !== $shouldAbort ) exit($errorCode);
+
+        return false;
+    }
+
+
+
+    public static function abort ( $mesg, $errorCode = 1 ) { self::error($mesg, true, $errorCode); }
 }
