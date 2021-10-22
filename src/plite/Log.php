@@ -40,7 +40,7 @@ class Log
     const CLOG_DEBUG_TIMING            = false;
     const CLOG_DEBUG_ERROR_LOG_DEFAULT = false;
     const CLOG_FOPEN_MODE              = "a+";
-    const CLOG_PASSWORD_PATTERN        = "/(passw[o]*[r]*d|scramble|secret)/i";
+    const CLOG_PASSWORD_PATTERN        = "/(passw[o]*[r]*[d]*|scramble|secret|key)/i";
 
     // CLOG options.
     const CLOG_VERSION_LITE         = 1;
@@ -152,53 +152,58 @@ class Log
         }
 
         if ( is_scalar($val) )
-            self::logScalar($prefix, $val);
-        else
-            self::logObject($debugPrefix, $key, $val);
-    }
-
-
-
-    private static function logScalar ( $prefix, $scalar )
-    {
-        //$mesg = is_bool($scalar) ? ($scalar ? self::ulgreen("true") : self::ulred("FALSE")) : self::yellow(strval($scalar));
-        $mesg = is_bool($scalar) ? ($scalar ? self::ulgreen("true") : self::ulred("FALSE")) : strval($scalar);
-        self::_log($prefix . $mesg);
-    }
-
-
-
-    private static function logObject ( $prefix, $desc, $item )
-    {
-        if ( null === $item )
         {
-            $str = self::bgred("[NULL object]");
-            $str = "== " . self::yellow($desc) . " " . $str . " ==";
-            self::log($prefix . $str);
+            //
+            // NOTE - Yes, this gets repeated.  Prob better, for perf sake.
+            //
+            $val  = self::obfuscatePasswords($key, $val);
+            $mesg = is_bool($val)
+                ? ($val ? self::ulgreen("true") : self::ulred("FALSE"))
+                : (is_numeric($val)
+                    ? self::yellow($val)
+                    : strval($val));
+            self::_log($prefix . $mesg);
+        }
+        else
+        {
+            self::logObject($debugPrefix, $key, $val);
+        }
+    }
+
+
+
+    private static function logObject ( $debugPrefix, $key, $val )
+    {
+        if ( null === $val )
+        {
+            $str = self::bgyellow("[NULL object]");
+            $str = "== " . self::yellow($key) . " " . $str . " ==";
+            self::log($debugPrefix . $str);
             return;
         }
-        else if ( is_array($item) )
-        {
-            $descString = (0 == strlen($desc)) ? "<Array>" : "$desc <Array>";
 
-            self::logArray($prefix, $descString, $item);
-        }
-        else if ( $item instanceof Exception )
+        if ( is_array($val) )
         {
-            self::logException($item);
+            $descString = (0 == strlen($key)) ? "[]" : "$key []";
+
+            self::logArray($debugPrefix, $descString, $val);
+        }
+        else if ( $val instanceof Exception )
+        {
+            self::logException($val);
         }
         else
         {
-            if ( $item instanceof Wired )
+            if ( $val instanceof Wired )
             {
                 try
                 {
-                    $ref        = new \ReflectionClass($item);
+                    $ref        = new \ReflectionClass($val);
                     $type       = $ref->getName();
-                    $descString = (0 == strlen($desc)) ? "<$type>" : "$desc <$type>";
-                    $wiredHash  = call_user_func([ $item, "toHash" ]);
+                    $descString = (0 == strlen($key)) ? "[$type]" : "$key [$type]";
+                    $wiredHash  = call_user_func([ $val, "toHash" ]);
 
-                    self::logArray($prefix, $descString, $wiredHash);
+                    self::logArray($debugPrefix, $descString, $wiredHash);
                     return;
                 }
                 catch ( \ReflectionException $e )
@@ -210,17 +215,17 @@ class Log
             {
                 try
                 {
-                    $ref   = new \ReflectionClass($item);
+                    $ref   = new \ReflectionClass($val);
                     $type  = $ref->getName();
-                    $data  = var_export($item, true);
+                    $data  = var_export($val, true);
                     $color = self::TEXT_COLOR_RED;
 
                     $str = FJ::jsEncode($data);
 
-                    $type = self::yellow("<$type>");
+                    $type = self::yellow("[$type]");
                     $str  = self::color($color, $str);
 
-                    self::log($prefix . "$type: $str");
+                    self::log($debugPrefix . "$type: $str");
                 }
                 catch ( \ReflectionException $e )
                 {
@@ -231,7 +236,7 @@ class Log
     }
 
 
-    
+
     /**
      * ****************************************************************
      *
@@ -260,9 +265,9 @@ class Log
 
         if ( 0 == $count )
         {
-            $str = self::bgred("[EMPTY array]");
+            $str = self::bgyellow("[EMPTY array]");
             $str = "== " . self::yellow($desc) . " " . $str . " ==";
-            self::log($prefix . $str);
+            self::log($prefix . $indent . $str);
             return;
         }
 
@@ -301,17 +306,7 @@ class Log
 
         //self::log("clogHandleArray/pre: $pre");
 
-        if ( 0 === $depth )
-        {
-            self::log($prefix . $pre);
-        }
-        else
-        {
-            //self::log($prefix . $parentPre . "<Array>");
-        }
-
-        //if ( 0 !== $depth )
-        //$prefix = self::clogCreatePlaceholder(strlen($prefix), ' ');
+        if ( 0 === $depth ) self::log($prefix . $pre);
 
         foreach ( $item as $key => $val )
         {
@@ -320,28 +315,26 @@ class Log
 
             if ( is_array($val) )
             {
-                $post = self::ulcyan("Array");
+                $post = self::cyan("[]");
                 $str  = $pre . $post;
                 self::log($prefix . $indent . $str);
 
                 // Recursion.
-                self::logArray($prefix, $desc, $val, 1 + $depth, $pre); // FIXME
+                self::logArray($prefix, $desc, $val, 1 + $depth);
             }
             else
             {
-                if ( is_bool($val) )
-                {
-                    $color = $val ? self::TEXT_COLOR_UL_GREEN : self::TEXT_COLOR_UL_RED;
-                    $v     = $val ? 'true' : 'FALSE';
-                    $v     = self::color($color, $v);
-                    $str   = $pre . $v;
-                }
-                else
-                {
-                    $val  = self::obfuscatePasswords($key, $val);
-                    $post = self::green($val);
-                    $str  = $pre . $post;
-                }
+                //
+                // NOTE - Yes, this gets repeated.  Prob better, for perf sake.
+                //
+                $val  = self::obfuscatePasswords($key, $val);
+                $mesg = is_bool($val)
+                    ? ($val ? self::ulgreen("true") : self::ulred("FALSE"))
+                    : (is_numeric($val)
+                        ? self::yellow($val)
+                        : strval($val));
+
+                $str = $pre . $mesg;
 
                 self::log($prefix . $indent . $str);
             }
@@ -416,12 +409,7 @@ class Log
 
     private static function createPlaceholder ( $len, $char = ' ' )
     {
-        $str = "";
-        while ( $len-- )
-        {
-            $str .= $char;
-        }
-        return $str;
+        return str_repeat($char, $len);
     }
 
 
@@ -431,7 +419,7 @@ class Log
 
         return !preg_match(self::CLOG_PASSWORD_PATTERN, $key)
             ? $val
-            : self::createPlaceholder(strlen($val), "*");
+            : self::bgyellow(self::createPlaceholder(strlen($val), "*"));
     }
 
 
