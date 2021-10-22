@@ -403,23 +403,16 @@ class Log
     private static function createIndent ( $depth )
     {
         $indentCount = (self::CLOG_DEPTH_INDENT * $depth) + ((0 === $depth) ? 0 : 2);
-        return self::createPlaceholder($indentCount);
-    }
-
-
-    private static function createPlaceholder ( $len, $char = ' ' )
-    {
-        return str_repeat($char, $len);
+        return str_repeat(' ', $indentCount);
     }
 
 
     private static function obfuscatePasswords ( $key, $val )
     {
         // Deal with password-like fields.
-
         return !preg_match(self::CLOG_PASSWORD_PATTERN, $key)
             ? $val
-            : self::bgyellow(self::createPlaceholder(strlen($val), "*"));
+            : self::bgyellow(str_repeat('*', strlen($val)));
     }
 
 
