@@ -165,6 +165,9 @@ class Log
         $mesg = is_bool($scalar) ? ($scalar ? self::ulgreen("true") : self::ulred("FALSE")) : strval($scalar);
         self::_log($prefix . $mesg);
     }
+
+
+
     private static function logObject ( $prefix, $desc, $item )
     {
         if ( null === $item )
@@ -228,6 +231,7 @@ class Log
     }
 
 
+    
     /**
      * ****************************************************************
      *
