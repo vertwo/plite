@@ -111,8 +111,6 @@ class Log
         return self::shouldColor() ? ($color . $str . self::TEXT_COLOR_SUFFIX) : $str;
     }
 
-
-
     public static function red ( $str ) { return self::color(self::TEXT_COLOR_RED, $str); }
     public static function cyan ( $str ) { return self::color(self::TEXT_COLOR_CYAN, $str); }
     public static function yellow ( $str ) { return self::color(self::TEXT_COLOR_YELLOW, $str); }
@@ -254,7 +252,8 @@ class Log
      */
     public static function logArray ( $prefix, $desc, $item, $depth = 0 )
     {
-        $indent = self::createIndent($depth);
+        $indentCount = (self::CLOG_DEPTH_INDENT * $depth) + ((0 === $depth) ? 0 : 2);
+        $indent      = str_repeat(' ', $indentCount);
 
         //self::log("clogHandleArray/prefix: $prefix");
         //self::log("clogHandleArray/indent: [$indent]");
@@ -342,6 +341,7 @@ class Log
     }
 
 
+
     /**
      * ****************************************************************
      * Pretty-prints and Exception object.
@@ -400,12 +400,6 @@ class Log
     }
 
 
-    private static function createIndent ( $depth )
-    {
-        $indentCount = (self::CLOG_DEPTH_INDENT * $depth) + ((0 === $depth) ? 0 : 2);
-        return str_repeat(' ', $indentCount);
-    }
-
 
     private static function obfuscatePasswords ( $key, $val )
     {
@@ -414,6 +408,7 @@ class Log
             ? $val
             : self::bgyellow(str_repeat('*', strlen($val)));
     }
+
 
 
     /**
@@ -466,6 +461,7 @@ class Log
     }
 
 
+
     private static function initAlternateFileHandles ()
     {
         self::$logfp = false;
@@ -491,6 +487,7 @@ class Log
     private static function isFileOpen () { return false !== self::$logfp; }
 
 
+
     private static function shouldColor ()
     {
         if ( null !== self::$shouldColor ) return self::$shouldColor;
@@ -498,6 +495,7 @@ class Log
         self::$shouldColor = isCLI() || self::isFileOpen();
         return self::$shouldColor;
     }
+
 
 
     private static function _log ( $mesg )
@@ -562,26 +560,17 @@ class Log
     }
 
 
+
     public static function setCustomPrefix ( $prefix ) { self::$customPrefix = $prefix; }
-
-
     public static function getCustomPrefix () { return self::$customPrefix; }
-
-
     public static function resetCustomPrefix () { self::$customPrefix = false; }
+
 
 
     private static function _outputLog ( $mesg )
     {
-        if ( self::isFileOpen() )
-        {
-            // Actually write to file.
-            $bytesWritten = @fwrite(self::$logfp, $mesg);
-        }
-        else
-        {
-            error_log($mesg);
-        }
+        if ( self::isFileOpen() ) @fwrite(self::$logfp, $mesg);
+        else error_log($mesg);
     }
 
 
