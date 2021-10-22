@@ -98,6 +98,10 @@ class Log
      * @var bool|Resource
      */
     private static $logfp = false;
+    /**
+     * @var bool $shouldColor
+     */
+    private static $shouldColor = null;
 
 
     public static function color ( $color, $str )
@@ -130,28 +134,29 @@ class Log
 
     public static function log ()
     {
-        $prefix = (!self::DEBUG_TIMING && !self::DEBUG_REMOTE) ? "" : self::makeDebugPrefix();
-        $argc   = func_num_args();
+        $debugPrefix = (!self::DEBUG_TIMING && !self::DEBUG_REMOTE) ? "" : self::makeDebugPrefix();
+        $argc        = func_num_args();
 
         if ( 2 == $argc )
         {
-            $key        = func_get_arg(0);
-            $val        = func_get_arg(1);
-            $prompt     = self::cyan($key . ": ");
-            $longPrefix = $prefix . $prompt;
+            $key    = func_get_arg(0);
+            $val    = func_get_arg(1);
+            $prompt = self::cyan($key . ": ");
+            $prefix = $debugPrefix . $prompt;
         }
         else
         {
-            $val        = func_get_arg(0);
-            $key        = "";
-            $longPrefix = $prefix;
+            $key    = "";
+            $val    = func_get_arg(0);
+            $prefix = $debugPrefix;
         }
 
         if ( is_scalar($val) )
-            self::logScalar($longPrefix, $val);
+            self::logScalar($prefix, $val);
         else
-            self::logObject($prefix, $key, $val);
+            self::logObject($debugPrefix, $key, $val);
     }
+
 
 
     private static function logScalar ( $prefix, $scalar )
@@ -164,9 +169,7 @@ class Log
 
 
     /**
-     * ****************************************************************
      * Pretty-prints a dump of the current call-stack.
-     * ****************************************************************
      */
     public static function dump ()
     {
@@ -562,7 +565,13 @@ class Log
     private static function isFileOpen () { return false !== self::$logfp; }
 
 
-    private static function shouldColor () { return isCLI() || self::isFileOpen(); }
+    private static function shouldColor ()
+    {
+        if ( null !== self::$shouldColor ) return self::$shouldColor;
+
+        self::$shouldColor = isCLI() || self::isFileOpen();
+        return self::$shouldColor;
+    }
 
 
     private static function _log ( $mesg )
