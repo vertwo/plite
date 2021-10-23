@@ -23,13 +23,15 @@ namespace vertwo\plite\STELAR;
 
 
 
+use Iterator;
 use vertwo\plite\FJ;
+use vertwo\plite\Log;
 use function vertwo\plite\clog;
 use function vertwo\plite\redulog;
 
 
 
-class Ball
+class Ball implements Iterator
 {
     const DEBUG_MERGE         = false;
     const DEBUG_MERGE_VERBOSE = false;
@@ -514,6 +516,15 @@ class Ball
     }
     private static function recursivelyFlattenJSON ( $delim, $jobj, $outerKey, $o, $isSeqNumArrayElem = false )
     {
+        $innerKeys     = array_keys($jobj);
+        $innerKeyCount = count($innerKeys);
+
+        if ( 0 === $innerKeyCount )
+        {
+            $o[$outerKey] = [];
+            return $o;
+        }
+
         foreach ( $jobj as $k => $v )
         {
             // $v is a resource; skip.
@@ -533,6 +544,7 @@ class Ball
             }
             else
             {
+                Log::dump();
                 redulog("Can it be other things?? - [$v]");
             }
         }
