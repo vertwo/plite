@@ -70,6 +70,61 @@ final class BallTest extends TestCase
 }
 EOF;
 
+    const JSON_STRING_WITH_EMPTY = <<<EOF
+{
+  "accounting": [
+    {
+      "firstName": "John",
+      "lastName": "Doe",
+      "age": 23,
+      "isActive" : true
+    },
+    {
+      "firstName": "Mary",
+      "lastName": "Smith",
+      "age": 32,
+      "isActive" : false
+    }
+  ],
+  "engineering": [
+  ],
+  "sales": [
+    {
+      "firstName": "Sally",
+      "lastName": "Green",
+      "age": 27,
+      "isActive" : false
+    },
+    {
+      "firstName": "Jim",
+      "lastName": "Galley",
+      "age": 41,
+      "isActive" : true
+    }
+  ]
+}
+EOF;
+
+    const EXPECTED_KEYS_LINES = <<<EOF
+accounting[0].firstName
+accounting[0].lastName
+accounting[0].age
+accounting[0].isActive
+accounting[1].firstName
+accounting[1].lastName
+accounting[1].age
+accounting[1].isActive
+engineering
+sales[0].firstName
+sales[0].lastName
+sales[0].age
+sales[0].isActive
+sales[1].firstName
+sales[1].lastName
+sales[1].age
+sales[1].isActive
+EOF;
+
     const KEY_1 = "p.q.r.s.t";
     const VALUE = "test-abc-123";
     const KEY_2 = "alksjdfkljakdjsfkajdf.qqzz";
@@ -132,5 +187,34 @@ EOF;
         $val = $ball->get(self::KEY_2);
 
         $this->assertEquals(self::VALUE, $val);
+    }
+
+
+    public function testEmptyKey ()
+    {
+        $ball = Ball::fromJSON(self::JSON_STRING_WITH_EMPTY);
+
+        $this->assertTrue($ball->has("engineering"));
+
+        $eng = $ball->get("engineering");
+
+        $this->assertTrue(is_array($eng));
+        $this->assertCount(0, $eng);
+    }
+
+
+    public function testIterator ()
+    {
+        $expKeys = explode("\n", self::EXPECTED_KEYS_LINES);
+        $k       = 0;
+
+        $ball = Ball::fromJSON(self::JSON_STRING_WITH_EMPTY);
+        $iter = $ball->iterator();
+
+        foreach ( $iter as $key => $val )
+        {
+            $this->assertEquals($expKeys[$k], $key);
+            ++$k;
+        }
     }
 }

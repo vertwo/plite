@@ -31,7 +31,7 @@ use function vertwo\plite\redulog;
 
 
 
-class Ball implements Iterator
+class Ball
 {
     const DEBUG_MERGE         = false;
     const DEBUG_MERGE_VERBOSE = false;
@@ -85,6 +85,11 @@ class Ball implements Iterator
 
 
 
+    /**
+     * @param $path
+     *
+     * @return mixed
+     */
     public function get ( $path )
     {
         $keys = self::getKeyList($path);
@@ -96,6 +101,10 @@ class Ball implements Iterator
 
         return $scope;
     }
+
+
+
+    public function iterator () { return new BallIterator($this); }
 
 
 
@@ -507,6 +516,14 @@ class Ball implements Iterator
 
 
 
+    /**
+     * Depth-first flattening, using a delimiter to separate subkeys.
+     *
+     * @param $delim
+     * @param $jobj
+     *
+     * @return mixed
+     */
     private static function flattenJSON ( $delim, $jobj )
     {
         $root = "";
