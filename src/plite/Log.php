@@ -132,6 +132,8 @@ class Log
 
     public static function log ()
     {
+        self::initFileHandle();
+
         $debugPrefix = (!self::DEBUG_TIMING && !self::DEBUG_REMOTE) ? "" : self::makeDebugPrefix();
         $argc        = func_num_args();
 
@@ -442,7 +444,7 @@ class Log
 
             if ( !$logdir || 0 == strlen($logdir) )
             {
-                if ( !self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) self::initAlternateFileHandles();
+                self::initAlternateFileHandles();
                 return;
             }
             else
@@ -490,9 +492,7 @@ class Log
 
     private static function shouldColor ()
     {
-        if ( null !== self::$shouldColor ) return self::$shouldColor;
-
-        self::$shouldColor = isCLI() || self::isFileOpen();
+        if ( null === self::$shouldColor ) self::$shouldColor = (self::isFileOpen() || isCLI());
         return self::$shouldColor;
     }
 
@@ -501,7 +501,6 @@ class Log
     private static function _log ( $mesg )
     {
         //error_log("FJ::log()");
-        self::initFileHandle();
 
         if ( isWeb() && array_key_exists('REQUEST_TIME_FLOAT', $_SERVER) )
         {
