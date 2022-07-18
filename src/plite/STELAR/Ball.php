@@ -23,7 +23,6 @@ namespace vertwo\plite\STELAR;
 
 
 
-use Iterator;
 use vertwo\plite\FJ;
 use vertwo\plite\Log;
 use function vertwo\plite\clog;
@@ -104,7 +103,11 @@ class Ball
 
 
 
+    /**
+     * @return BallIterator
+     */
     public function iterator () { return new BallIterator($this); }
+    //public function conformingIterator () { return new BallIterator($this); }
 
 
 

@@ -1,7 +1,4 @@
 <?php declare(strict_types = 1);
-
-
-
 /**
  * Copyright (c) 2012-2021 Troy Wu
  * Copyright (c) 2021      Version2 OÜ
@@ -36,11 +33,21 @@ namespace vertwo\plite\STELAR;
 
 
 
-class BallIterator implements \Iterator
+use Iterator;
+
+
+
+class BallIterator implements Iterator
 {
+    const SORT_PARAMS = SORT_NATURAL | SORT_FLAG_CASE;
+
+
+
     private $keys;
     private $count;
     private $idx = -1;
+    private $flat;
+
 
 
     /**
@@ -50,15 +57,13 @@ class BallIterator implements \Iterator
      */
     function __construct ( $ball )
     {
-        $flat        = $ball->flattenNicely();
-        $this->keys  = array_keys($flat);
+        $this->flat  = $ball->flattenNicely();
+        $this->keys  = array_keys($this->flat);
         $this->count = count($this->keys);
 
-        if ( 0 < $this->count )
-        {
-            ++$this->idx;
-        }
+        if ( 0 < $this->count ) ++$this->idx;
     }
+
 
 
     /**
@@ -70,7 +75,7 @@ class BallIterator implements \Iterator
      */
     public function current ()
     {
-        return $this->keys[$this->idx];
+        return $this->flat[$this->key()];
     }
     /**
      * Move forward to next element

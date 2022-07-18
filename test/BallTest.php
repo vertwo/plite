@@ -1,4 +1,7 @@
 <?php declare(strict_types = 1);
+
+
+
 /**
  * Copyright (c) 2012-2021 Troy Wu
  * Copyright (c) 2021      Version2 OÜ
@@ -31,6 +34,7 @@
 
 use PHPUnit\Framework\TestCase;
 use vertwo\plite\STELAR\Ball;
+use function vertwo\plite\clog;
 
 
 

@@ -1,4 +1,4 @@
-PU			:=	vendor/phpunit/phpunit/phpunit
+PU			:=	vendor/bin/phpunit
 
 
 
