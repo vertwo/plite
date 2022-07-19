@@ -122,3 +122,4 @@ scripts/bin/*.out
 composer.phar
 vendor
 test/test*.php
+.idea/php.xml

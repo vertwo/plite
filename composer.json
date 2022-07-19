@@ -40,7 +40,8 @@
     "ext-simplexml": "*",
     "2tvenom/cborencode": "1.0.0",
     "phpseclib/phpseclib": "^3.0",
-    "aws/aws-sdk-php": "2.8.30"
+    "aws/aws-sdk-php": "3.128.0",
+    "phpmailer/phpmailer": "^6.6"
   },
   "require-dev": {
     "phpunit/phpunit": "^9"

@@ -19,7 +19,7 @@
 
 
 
-namespace FJ\Provider;
+namespace vertwo\plite\Provider;
 
 
 
@@ -28,22 +28,21 @@ use Aws\S3\S3Client;
 use Aws\SecretsManager\SecretsManagerClient;
 use Aws\Ses\SesClient;
 use Exception;
-use FJ\FJ;
-use FJ\integrations\EmailIntegration;
-use FJ\integrations\EmailProviderLocal;
-use FJ\integrations\TrelloIntegration;
-use FJ\Log;
-use FJ\Provider\AWS\CRUDProviderAWS;
-use FJ\Provider\AWS\CSVProviderAWS;
-use FJ\Provider\AWS\EmailProviderAWS;
-use FJ\Provider\AWS\FileProviderAWS;
-use FJ\Provider\Database\PG;
-use FJ\Provider\Local\CRUDProviderLocal;
-use FJ\Provider\Local\CSVProviderLocal;
-use FJ\Provider\Local\FileProviderLocal;
-use function FJ\cclog;
-use function FJ\clog;
-use function FJ\redlog;
+use vertwo\plite\FJ;
+use vertwo\plite\integrations\TrelloIntegration;
+use vertwo\plite\Log;
+use vertwo\plite\Provider\AWS\CRUDProviderAWS;
+use vertwo\plite\Provider\AWS\CSVProviderAWS;
+use vertwo\plite\Provider\AWS\EmailProviderAWS;
+use vertwo\plite\Provider\AWS\FileProviderAWS;
+use vertwo\plite\Provider\Database\PG;
+use vertwo\plite\Provider\Local\CRUDProviderLocal;
+use vertwo\plite\Provider\Local\CSVProviderLocal;
+use vertwo\plite\Provider\Local\EmailProviderLocal;
+use vertwo\plite\Provider\Local\FileProviderLocal;
+use function vertwo\plite\cclog;
+use function vertwo\plite\clog;
+use function vertwo\plite\redlog;
 
 
 
