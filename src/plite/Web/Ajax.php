@@ -32,7 +32,11 @@ use function vertwo\plite\clog;
 
 class Ajax
 {
-    const DEBUG_NUKE                  = false;
+    const DEBUG_POST      = false;
+    const DEBUG_GET       = false;
+    const DEBUG_TIMESTAMP = false;
+
+    const DEBUG_NUKE                  = true;
     const DEBUG_AJAX_RESPONSE         = true;
     const DEBUG_AJAX_RESPONSE_VERBOSE = false;
     const AJAX_RESPONSE_VERBOSE_LEN   = 2048;
@@ -69,6 +73,13 @@ class Ajax
         session_destroy();
 
         if ( self::DEBUG_NUKE ) clog("nukeSession - POST - COOKIES", $_COOKIE);
+    }
+
+
+
+    function nuke ()
+    {
+        self::nukeSession();
     }
 
 
@@ -126,7 +137,7 @@ class Ajax
         $this->now = $_SERVER['REQUEST_TIME'];
         $this->at  = new PrecTime();
 
-        if ( DEBUG_AJAX_TIMESTAMP )
+        if ( self::DEBUG_TIMESTAMP )
         {
             clog("Ajax.ctor() -                       at", $this->at);
             clog("Ajax.ctor() -        at.getWholeMicros", $this->at->getWholeMicros());
@@ -149,8 +160,8 @@ class Ajax
             }
 
 
-        if ( DEBUG_AJAX_POST ) clog("Ajax.ctor/_POST", $_POST);
-        if ( DEBUG_AJAX_GET ) clog("Ajax.ctor/_GET", $_GET);
+        if ( self::DEBUG_POST ) clog("Ajax.ctor/_POST", $_POST);
+        if ( self::DEBUG_GET ) clog("Ajax.ctor/_GET", $_GET);
 
         if ( isset($_POST) )
             $this->post = FJ::deepCopy($_POST);
@@ -167,8 +178,10 @@ class Ajax
 
     public function dump ( $mesg = false )
     {
-        clog("$mesg [Ajax/POST]", $_POST);
-        clog("$mesg [Ajax/GET] ", $_GET);
+        $mesg = false === $mesg ? "" : "$mesg ";
+
+        clog($mesg . "[Ajax/POST]", $_POST);
+        clog($mesg . "[Ajax/GET ]", $_GET);
     }
 
 
@@ -252,7 +265,7 @@ class Ajax
      *
      * @return bool - (true) if GET contains key; (false) otherwise.
      */
-    private function hasGet ( $key ) { return array_key_exists($key, $this->get); }
+    protected function hasGet ( $key ) { return array_key_exists($key, $_GET); }
 
 
 
@@ -272,7 +285,7 @@ class Ajax
      *
      * @return bool - (true) if POST contains key; (false) otherwise.
      */
-    private function hasPost ( $key ) { return array_key_exists($key, $this->post); }
+    protected function hasPost ( $key ) { return array_key_exists($key, $_POST); }
 
 
 
@@ -581,13 +594,9 @@ class Ajax
      */
     public function testBoth ( $key )
     {
-        $val = $this->testPost($key);
-        if ( false === $val )
-        {
-            $val = $this->testGet($key);
-        }
-
-        return $val;
+        if ( $this->hasPost($key) ) return $_POST[$key];
+        if ( $this->hasGet($key) ) return $_GET[$key];
+        return false;
     }
 
 

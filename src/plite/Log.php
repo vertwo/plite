@@ -33,6 +33,7 @@ class Log
 {
     const DEBUG_TIMING = false;
     const DEBUG_REMOTE = false;
+    const DEBUG_COLOR  = false;
 
     const CLOG_ERROR_LOG_CONSTANT      = 'error_log';
     const CLOG_FILENAME                = "php.clog";
@@ -420,6 +421,8 @@ class Log
      */
     private static function initFileHandle ()
     {
+        if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("isCLI? " . (isCli() ? "Y" : "n"));
+
         if ( isCLI() )
         {
             if ( self::CLOG_DEBUG_ERROR_LOG_DEFAULT ) error_log("IS-CLI; aborting!");
@@ -492,19 +495,29 @@ class Log
 
     private static function shouldColor ()
     {
-        if ( null === self::$shouldColor ) self::$shouldColor = (self::isFileOpen() || isCLI());
-        return self::$shouldColor;
+        //if ( null === self::$shouldColor ) self::$shouldColor = (self::isFileOpen() || isCLI());
+        //return self::$shouldColor;
+        return true;
     }
 
 
 
     private static function _log ( $mesg )
     {
-        //error_log("FJ::log()");
+        if ( self::DEBUG_COLOR )
+        {
+            error_log("FJ::log()");
+            error_log("  isFileOpen()? " . (self::isFileOpen() ? "Y" : "n"));
+            error_log("  isCLI()     ? " . (isCLI() ? "Y" : "n"));
+        }
 
         if ( isWeb() && array_key_exists('REQUEST_TIME_FLOAT', $_SERVER) )
         {
-            //error_log("Why doesn't this appear??");
+            if ( self::DEBUG_COLOR )
+            {
+                error_log("Why doesn't this appear??");
+                error_log("  shouldColor()? " . (self::shouldColor() ? "Y" : "n"));
+            }
 
             $now = new PrecTime();
             $rfc = $now->rfc();
@@ -548,7 +561,7 @@ class Log
 
             $mesgCustom .= " $self $mesg";
 
-            if ( self::shouldColor() ) $mesgCustom .= "\n";
+            if ( self::shouldColor() && isCLI() ) $mesgCustom .= "\n";
         }
         else
         {
@@ -568,7 +581,7 @@ class Log
 
     private static function _outputLog ( $mesg )
     {
-        if ( self::isFileOpen() ) @fwrite(self::$logfp, $mesg);
+        if ( self::isFileOpen() ) @fwrite(self::$logfp, $mesg . "\n");
         else error_log($mesg);
     }
 
