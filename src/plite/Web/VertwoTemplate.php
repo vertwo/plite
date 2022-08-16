@@ -22,11 +22,11 @@ class VertwoTemplate
 
 
 
-    public static function init ()
+    public static function init ( $pfPrefix = false )
     {
-        $ajax     = new Ajax();
-        $pfPrefix = $ajax->testBoth("pf");
-        $pfName   = $pfPrefix . "ProviderFactory";
+        $ajax = new Ajax();
+        if ( false === $pfPrefix ) $pfPrefix = $ajax->testBoth("pf");
+        $pfName = $pfPrefix . "ProviderFactory";
 
         clog("pf name", $pfName);
 
