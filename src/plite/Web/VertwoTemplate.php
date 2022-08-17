@@ -24,6 +24,8 @@ class VertwoTemplate
 
     public static function init ( $pfPrefix = false )
     {
+        clog("pfPrefix", $pfPrefix);
+
         $ajax = new Ajax();
         if ( false === $pfPrefix ) $pfPrefix = $ajax->testBoth("pf");
         $pfName = $pfPrefix . "ProviderFactory";
