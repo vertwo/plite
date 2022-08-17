@@ -226,15 +226,151 @@ class Ajax
 
 
 
-    public function http ( $httpStatusCode, $mesg )
+    public function http ( $status, $mesg = false )
     {
-        Log::warn("(HTTP $httpStatusCode): $mesg");
-        http_response_code($httpStatusCode);
+        clog("HTTP/1.1 $status (ignoring following mesg)", $mesg);
+        http_response_code($status);
 
         flush();
         ob_flush();
         exit();
     }
+
+
+
+    public function resp ( $code = 200, $mesg = false )
+    {
+        if ( false === $mesg || null === $mesg )
+        {
+            switch ( $code )
+            {
+                case 100:
+                    $mesg = 'Continue';
+                    break;
+                case 101:
+                    $mesg = 'Switching Protocols';
+                    break;
+                case 200:
+                    $mesg = 'OK';
+                    break;
+                case 201:
+                    $mesg = 'Created';
+                    break;
+                case 202:
+                    $mesg = 'Accepted';
+                    break;
+                case 203:
+                    $mesg = 'Non-Authoritative Information';
+                    break;
+                case 204:
+                    $mesg = 'No Content';
+                    break;
+                case 205:
+                    $mesg = 'Reset Content';
+                    break;
+                case 206:
+                    $mesg = 'Partial Content';
+                    break;
+                case 300:
+                    $mesg = 'Multiple Choices';
+                    break;
+                case 301:
+                    $mesg = 'Moved Permanently';
+                    break;
+                case 302:
+                    $mesg = 'Moved Temporarily';
+                    break;
+                case 303:
+                    $mesg = 'See Other';
+                    break;
+                case 304:
+                    $mesg = 'Not Modified';
+                    break;
+                case 305:
+                    $mesg = 'Use Proxy';
+                    break;
+                case 400:
+                    $mesg = 'Bad Request';
+                    break;
+                case 401:
+                    $mesg = 'Unauthorized';
+                    break;
+                case 402:
+                    $mesg = 'Payment Required';
+                    break;
+                case 403:
+                    $mesg = 'Forbidden';
+                    break;
+                case 404:
+                    $mesg = 'Not Found';
+                    break;
+                case 405:
+                    $mesg = 'Method Not Allowed';
+                    break;
+                case 406:
+                    $mesg = 'Not Acceptable';
+                    break;
+                case 407:
+                    $mesg = 'Proxy Authentication Required';
+                    break;
+                case 408:
+                    $mesg = 'Request Time-out';
+                    break;
+                case 409:
+                    $mesg = 'Conflict';
+                    break;
+                case 410:
+                    $mesg = 'Gone';
+                    break;
+                case 411:
+                    $mesg = 'Length Required';
+                    break;
+                case 412:
+                    $mesg = 'Precondition Failed';
+                    break;
+                case 413:
+                    $mesg = 'Request Entity Too Large';
+                    break;
+                case 414:
+                    $mesg = 'Request-URI Too Large';
+                    break;
+                case 415:
+                    $mesg = 'Unsupported Media Type';
+                    break;
+                case 500:
+                    $mesg = 'Internal Server Error';
+                    break;
+                case 501:
+                    $mesg = 'Not Implemented';
+                    break;
+                case 502:
+                    $mesg = 'Bad Gateway';
+                    break;
+                case 503:
+                    $mesg = 'Service Unavailable';
+                    break;
+                case 504:
+                    $mesg = 'Gateway Time-out';
+                    break;
+                case 505:
+                    $mesg = 'HTTP Version not supported';
+                    break;
+                default:
+                    Log::error('Unknown http status code "' . htmlentities($code) . '"');
+                    break;
+            }
+        }
+
+        $protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
+
+        header($protocol . ' ' . $code . ' ' . $mesg);
+
+        $GLOBALS['http_response_code'] = $code;
+
+    }
+    public function ok ( $mesg = false ) { $this->resp(200, $mesg); }
+    public function bad ( $mesg = false ) { $this->resp(500, $mesg); }
+
 
 
 
