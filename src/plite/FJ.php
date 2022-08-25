@@ -594,6 +594,8 @@ class FJ
         $debugPort    = self::getParam("debugPort", $params);
         $debugHost    = self::getParam("debugHost", $params);
 
+        $shouldDisableSSLCheck = self::getParam("disableSSLCheck", $params);
+
         $curl = curl_init();
 
         switch ( $method )
@@ -627,6 +629,16 @@ class FJ
             // Optional Authentication:
             curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
             curl_setopt($curl, CURLOPT_USERPWD, "$user:$pass");
+        }
+
+        //
+        // WARN - Disables SSL Cert checking (e.g., hitting an endpoint with
+        //        an expired cert).
+        //
+        if ( false !== $shouldDisableSSLCheck )
+        {
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         }
 
         if ( false !== $debug ) clog("Hitting URL", $url);
