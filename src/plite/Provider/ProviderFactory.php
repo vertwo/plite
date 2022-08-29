@@ -51,7 +51,7 @@ abstract class ProviderFactory
     const DEBUG_CONFIG_INFO     = false;
     const DEBUG_DB_CONN         = false;
     const DEBUG_DB_CONN_VERBOSE = false;
-    const DEBUG_SECRETS_MANAGER = false;
+    const DEBUG_SECRETS_MANAGER = true;
     const DEBUG_AWS_CREDS       = false;
 
 
@@ -658,6 +658,8 @@ abstract class ProviderFactory
         $params = $this->getCredsAWS();
         try
         {
+            if ( self::DEBUG_SECRETS_MANAGER ) clog("creds for SecMan", $params);
+
             $secman = new SecretsManagerClient($params);
         }
         catch ( \Exception $e )
@@ -918,21 +920,21 @@ abstract class ProviderFactory
 
     private function getSecretFromCloud ( $secretName )
     {
-        if ( self::DEBUG_SECRETS_MANAGER ) clog("getSecretFromCloud() - Creating AWS SecretsManager Client", "ANTE");
+        if ( self::DEBUG_SECRETS_MANAGER ) clog("getSec...FromCloud() - ANTE AWS SecMan Client", $secretName);
 
         $client = $this->getSecretsManagerClient();
 
-        if ( self::DEBUG_SECRETS_MANAGER ) clog("getSecretFromCloud() - Creating AWS SecretsManager Client", "POST");
+        if ( self::DEBUG_SECRETS_MANAGER ) clog("getSec...FromCloud() - POST AWS SecMan Client");
 
         if ( false === $client || !$client )
         {
-            redlog("Cannot create SecretsManagerClient object; aborting");
+            redlog("Cannot create SecManClient object; aborting");
             return false;
         }
 
         try
         {
-            clog("getSecretFromCloud()", "Getting secret [$secretName]...");
+            clog("getSec...FromCloud()", "Getting secret [$secretName]...");
 
             $result = $client->getSecretValue(
                 [
@@ -945,7 +947,7 @@ abstract class ProviderFactory
             $error = $e->getAwsErrorCode();
             $this->handleSecManError($error);
 
-            cclog(Log::TEXT_COLOR_BG_RED, "FAIL to get DB auth secrets . ");
+            cclog(Log::TEXT_COLOR_BG_RED, "FAIL to get secrets.");
             return false;
         }
         catch ( Exception $e )
@@ -980,34 +982,34 @@ abstract class ProviderFactory
         {
             // Secrets Manager can't decrypt the protected secret text using the provided AWS KMS key.
             // Handle the exception here, and/or rethrow as needed.
-            clog("AWS SecretsManager error (handle in subclass)", $error);
+            clog("AWS SecMan error (handle in subclass)", $error);
         }
         if ( $error == 'InternalServiceErrorException' )
         {
             // An error occurred on the server side.
             // Handle the exception here, and/or rethrow as needed.
-            clog("AWS SecretsManager error (handle in subclass)", $error);
+            clog("AWS SecMan error (handle in subclass)", $error);
         }
         if ( $error == 'InvalidParameterException' )
         {
             // You provided an invalid value for a parameter.
             // Handle the exception here, and/or rethrow as needed.
-            clog("AWS SecretsManager error (handle in subclass)", $error);
+            clog("AWS SecMan error (handle in subclass)", $error);
         }
         if ( $error == 'InvalidRequestException' )
         {
             // You provided a parameter value that is not valid for the current state of the resource.
             // Handle the exception here, and/or rethrow as needed.
-            clog("AWS SecretsManager error (handle in subclass)", $error);
+            clog("AWS SecMan error (handle in subclass)", $error);
         }
         if ( $error == 'ResourceNotFoundException' )
         {
             // We can't find the resource that you asked for.
             // Handle the exception here, and/or rethrow as needed.
-            clog("AWS SecretsManager error (handle in subclass)", $error);
+            clog("AWS SecMan error (handle in subclass)", $error);
         }
 
-        clog("AWS SecretsManager Error", $error);
+        clog("AWS SecMan Error", $error);
         Log::error($error);
     }
 
