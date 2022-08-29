@@ -279,6 +279,14 @@ abstract class ProviderFactory
 
         $config = false;
 
+        //
+        // NOTE - If we have local params, use them.  This allow you
+        //        to simulate the cloud environment on your local box
+        //        using a config file, preferably in the /.../app/auth
+        //        file...
+        //        ...If, however, we DO NOT have local params, then this
+        //        is the CLOUD config.  Use that.
+        //
         if ( $this->hasLocalConfig() )
         {
             $config = $this->loadLocalConfig();
@@ -303,6 +311,10 @@ abstract class ProviderFactory
                 clog($e);
                 clog("Could not initialize local AWS credentials . ");
             }
+        }
+        else
+        {
+            $config = $this->loadConfigParams();
         }
 
         $params['region']  = self::getAWSRegion($config);
