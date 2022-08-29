@@ -123,3 +123,4 @@ composer.phar
 vendor
 test/test*.php
 .idea/php.xml
+.idea/php.xml
