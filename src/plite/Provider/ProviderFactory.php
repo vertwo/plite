@@ -670,14 +670,14 @@ abstract class ProviderFactory
         $params = $this->getCredsAWS();
         try
         {
-            if ( self::DEBUG_SECRETS_MANAGER ) clog("creds for SecMan", $params);
+            if ( self::DEBUG_CREDS_DANGEROUS ) clog("creds for SecMan", $params);
 
             $secman = new SecretsManagerClient($params);
         }
         catch ( \Exception $e )
         {
             clog($e);
-            clog("Cannot get AWS SecretsManager Client; returning(false)");
+            clog("Cannot get AWS SecMan Client; returning(false)");
             $secman = false;
         }
 
