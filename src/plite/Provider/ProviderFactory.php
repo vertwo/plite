@@ -680,7 +680,7 @@ abstract class ProviderFactory
 
             $secman = new SecretsManagerClient($params);
         }
-        catch ( \Exception $e )
+        catch ( Exception $e )
         {
             clog($e);
             clog("Cannot get AWS SecMan Client; returning(false)");
