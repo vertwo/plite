@@ -663,6 +663,12 @@ abstract class ProviderFactory
 
 
     /**
+     * NOTE - This framework is linked to version 3.234.4 of the AWS SDK.
+     *
+     * WARN - Previous versions weren't working in ElasticBeanstalk with Amazon Linux 2 with IMDSv2.
+     *
+     * This is a chance from AL1 with IMDSv? (unknown in older version of ElasticBeanstalk).
+     *
      * @return SecretsManagerClient|bool
      */
     private function getSecretsManagerClient ()
